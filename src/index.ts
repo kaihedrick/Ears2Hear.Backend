@@ -15,12 +15,15 @@ import trackRoutes from './routes/trackRoutes';
 import playlistRoutes from './routes/playlistRoutes';
 import playlistTrackRoutes from './routes/playlistTrackRoutes';
 import userTrackRoutes from './routes/userTrackRoutes';
+import authRoutes from './routes/authRoutes';
+import protectedRoutes from './routes/protectedRoutes'
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors()); //cors allows the application to accept requests from different origins such as a front end application
 app.use(bodyParser.json()); //parses incoming json data (generally for postman)
+app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true })); //used for html forms to parse data from complex objects
 
 // MySQL connection pool which connects to my ears2hear database
@@ -41,6 +44,13 @@ app.get('/api/test', (req, res) => {
 app.get('/', (req, res) => {
     res.send('Welcome to backend for Ears2Hear!');
 });
+app.use((req, res, next) => {
+    console.log(`Incoming request: ${req.method} ${req.url}`);
+    next();
+});
+// Routes for authentication
+app.use('/api/auth', authRoutes);
+app.use('/api/protected', protectedRoutes);
 
 //here are all the different routes for our Controller, Model, and routes directories linking all functionalities for CRUD operations for database queries.
 app.use('/api', userRoutes);  

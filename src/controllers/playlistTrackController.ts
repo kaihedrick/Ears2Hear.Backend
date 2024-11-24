@@ -2,7 +2,7 @@
  * Kai Hedrick
  * CST-321
  * Instructor Sparks
- * Ears 2 playlistTrack controller | playlist_tracks Table
+ * Ears 2 hear playlistTrack controller | playlist_tracks Table
  * 
  * This controller facilitates the management of playlist track data, enabling operations such as adding and removing tracks from playlists.
  * It interacts with the PlaylistTrackModel to perform database queries and returns structured responses to the client.

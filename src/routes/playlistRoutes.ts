@@ -2,7 +2,7 @@
  * Kai Hedrick
  * CST-321
  * Instructor Sparks
- * Ears 2 playlist Route | playlist table
+ * Ears 2 hear playlist Route | playlist table
  * 
  * This will allow the routes from our respective controller and model ts files to be linked with the routes
  */

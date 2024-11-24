@@ -2,7 +2,7 @@
  * Kai Hedrick
  * CST-321
  * Instructor Sparks
- * Ears 2 track model | tracks Table
+ * Ears 2 hear track model | tracks Table
  * 
  * This will allow the model to retrieve tracks data from the database, perform data validation, and returned structured data to the track controller
  */

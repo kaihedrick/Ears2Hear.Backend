@@ -2,7 +2,7 @@
  * Kai Hedrick
  * CST-321
  * Instructor Sparks
- * Ears 2 user controller | users Table
+ * Ears 2 hear user controller | users Table
  * 
  * This controller facilitates the management of user data, enabling operations such as retrieving, creating, updating, and deleting users.
  * It interacts with the UserModel to perform database queries and returns structured responses to the client.
@@ -10,6 +10,8 @@
 
 import { Request, Response } from 'express';
 import { UserModel } from '../models/userModel';
+import jwt from 'jsonwebtoken';
+import { jwtConfig } from '../config/jwtConfig';
 
 /**
  * The getAllUsers function handles the retrieval of all users from the database.
@@ -19,12 +21,53 @@ import { UserModel } from '../models/userModel';
 export const getAllUsers = async (req: Request, res: Response) => {
     try {
         const users = await UserModel.getAllUsers();
+        console.log('Fetched users:', users);
         res.json(users);
     } catch (error) {
-        console.error('Error fetching users:', error); // Log the error
-        res.status(500).json({ error: 'Error fetching users' });
+        console.error('Error fetching all users:', error);
+        res.status(500).json({ error: 'Error fetching all users' });
     }
 };
+
+export const loginUser = async (req: Request, res: Response): Promise<void> => {
+    const { username, password } = req.body;
+  
+    if (!username || !password) {
+      res.status(400).json({ message: 'Username and password are required.' });
+      return;
+    }
+  
+    try {
+      const user = await UserModel.validateUser(username, password);
+  
+      if (user) {
+        // Use jwtConfig.jwtSecret and jwtConfig.jwtExpiresIn
+        const token = jwt.sign(
+          { userId: user.user_id, username: user.name },
+          jwtConfig.jwtSecret,
+          { expiresIn: jwtConfig.jwtExpiresIn }
+        );
+  
+        console.log(`Generated Token for user ${user.name}:`, token);
+  
+        res.json({
+          success: true,
+          token,
+          user: {
+            id: user.user_id,
+            username: user.name,
+            email: user.email,
+          },
+        });
+      } else {
+        res.status(401).json({ success: false, message: 'Invalid username or password.' });
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  };
+  
 
 /**
  * The getUserById function manages the retrieval of a specific user by their ID.

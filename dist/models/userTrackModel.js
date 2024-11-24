@@ -35,12 +35,35 @@ const db = promise_1.default.createPool({
  * These methods will query the data directly from the database, ensuring the design represents a format that the controller can use
  */
 exports.UserTrackModel = {
-    // * The addUserTrack will add a track to the Users tracks, representing liked songs
-    addUserTrack: (user_id, track_id) => __awaiter(void 0, void 0, void 0, function* () {
-        yield db.query('INSERT INTO user_tracks (user_id, track_id) VALUES (?, ?)', [user_id, track_id]);
+    // Add a track to the user's liked tracks
+    addLikedTrack: (userId, trackId) => __awaiter(void 0, void 0, void 0, function* () {
+        yield db.query('INSERT INTO user_tracks (user_id, track_id) VALUES (?, ?)', [userId, trackId]);
     }),
-    // * The removeUserTrack will remove a track from the Users tracks
-    removeUserTrack: (user_id, track_id) => __awaiter(void 0, void 0, void 0, function* () {
-        yield db.query('DELETE FROM user_tracks WHERE user_id = ? AND track_id = ?', [user_id, track_id]);
+    // Remove a track from the user's liked tracks
+    removeLikedTrack: (userId, trackId) => __awaiter(void 0, void 0, void 0, function* () {
+        const query = `
+      DELETE FROM user_tracks
+      WHERE user_id = ? AND track_id = ?
+    `;
+        console.log('Executing query:', query, [userId, trackId]);
+        try {
+            // Explicitly type the result as ResultSetHeader
+            const [result] = yield db.query(query, [userId, trackId]);
+            console.log('Delete result:', result); // Log query result
+            if (result.affectedRows === 0) {
+                throw new Error('No rows affected. The track may not exist for this user.');
+            }
+        }
+        catch (error) {
+            console.error('Error executing query:', error);
+            throw error; // Rethrow error to be caught by the controller
+        }
+    }),
+    // Retrieve all liked tracks for a specific user
+    getLikedTracks: (userId) => __awaiter(void 0, void 0, void 0, function* () {
+        const [rows] = yield db.query(`SELECT tracks.* FROM tracks
+       JOIN user_tracks ON tracks.track_id = user_tracks.track_id
+       WHERE user_tracks.user_id = ?`, [userId]);
+        return rows;
     }),
 };

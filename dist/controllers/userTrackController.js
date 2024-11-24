@@ -18,7 +18,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeUserTrack = exports.addUserTrack = void 0;
+exports.getLikedTracks = exports.removeLikedTrack = exports.addLikedTrack = void 0;
 const userTrackModel_1 = require("../models/userTrackModel"); // Make sure to import correctly
 /**
  * The addUserTrack function handles adding a track to a user's collection.
@@ -26,31 +26,54 @@ const userTrackModel_1 = require("../models/userTrackModel"); // Make sure to im
  * addUserTrack method from the UserTrackModel, and returns a success message
  * or an error response if the operation fails.
  */
-const addUserTrack = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { user_id, track_id } = req.body;
+const addLikedTrack = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId, trackId } = req.body;
     try {
-        yield userTrackModel_1.UserTrackModel.addUserTrack(user_id, track_id);
-        res.json({ message: 'Track added to user' });
+        yield userTrackModel_1.UserTrackModel.addLikedTrack(userId, trackId);
+        res.json({ message: 'Track added to liked tracks successfully!' });
     }
     catch (error) {
-        res.status(500).json({ error: 'Error adding track to user' });
+        console.error('Error adding liked track:', error);
+        res.status(500).json({ error: 'Failed to add liked track' });
     }
 });
-exports.addUserTrack = addUserTrack;
+exports.addLikedTrack = addLikedTrack;
 /**
- * The removeUserTrack function manages the removal of a track from a user's collection.
- * It retrieves the user_id and track_id from the request parameters, calls the
- * removeUserTrack method from the UserTrackModel, and sends a success message
- * or an error response if the operation fails.
+ * Remove a track from the user's liked tracks
  */
-const removeUserTrack = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { user_id, track_id } = req.params;
+const removeLikedTrack = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield userTrackModel_1.UserTrackModel.removeUserTrack(parseInt(user_id), parseInt(track_id));
-        res.json({ message: 'Track removed from user' });
+        const { userId, trackId } = req.body;
+        // Validate input
+        if (!userId || !trackId) {
+            res.status(400).json({ error: 'User ID and Track ID are required' });
+            return; // Explicitly return to end execution
+        }
+        console.log('Received payload:', req.body);
+        // Log the request payload for debugging
+        console.log('Removing liked track:', { userId, trackId });
+        // Call the model to remove the track
+        yield userTrackModel_1.UserTrackModel.removeLikedTrack(userId, trackId);
+        res.status(200).json({ message: 'Track removed from liked tracks successfully!' });
     }
     catch (error) {
-        res.status(500).json({ error: 'Error removing track from user' });
+        console.error('Error removing liked track:', error);
+        res.status(500).json({ error: 'Failed to remove liked track' });
     }
 });
-exports.removeUserTrack = removeUserTrack;
+exports.removeLikedTrack = removeLikedTrack;
+/**
+ * Get all liked tracks for a user
+ */
+const getLikedTracks = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = Number(req.params.userId);
+    try {
+        const likedTracks = yield userTrackModel_1.UserTrackModel.getLikedTracks(userId);
+        res.json(likedTracks);
+    }
+    catch (error) {
+        console.error('Error fetching liked tracks:', error);
+        res.status(500).json({ error: 'Failed to fetch liked tracks' });
+    }
+});
+exports.getLikedTracks = getLikedTracks;

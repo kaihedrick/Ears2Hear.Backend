@@ -2,7 +2,7 @@
  * Kai Hedrick
  * CST-321
  * Instructor Sparks
- * Ears 2 user model | users Table
+ * Ears 2 hear user model | users Table
  * 
  * This will allow the model to retrieve users data from the database, perform data validation, and returned structured data to the user controller
  */
@@ -36,14 +36,34 @@ export interface User {
 export const UserModel = {
     // getAllUsers retrieves all users from the users table in the database and maps each row to a User object format.
     getAllUsers: async (): Promise<User[]> => {
-        const [rows] = await db.query<RowDataPacket[]>('SELECT * FROM users');
-        return rows.map(row => ({
+        try {
+            const [rows] = await db.query<RowDataPacket[]>('SELECT * FROM users');
+            console.log('Users fetched:', rows);
+            return rows.map(row => ({
+                user_id: row.user_id,
+                name: row.name,
+                email: row.email,
+                password: row.password,
+            }));
+        } catch (error) {
+            console.error('Error in getAllUsers query:', error);
+            throw error;
+        }
+    },    
+    
+    async findOne(condition: { where: { name: string } }): Promise<User | null> {
+        const [rows] = await db.query('SELECT * FROM users WHERE name = ?', [condition.where.name]);
+        if ((rows as any[]).length > 0) {
+          const row = (rows as any[])[0];
+          return {
             user_id: row.user_id,
             name: row.name,
             email: row.email,
-            password: row.password, // Potentially format differently in future for security
-        }));
-    },
+            password: row.password,
+          };
+        }
+        return null; // Return null if no user is found
+      },
     //getUserById retrieves a user by id from the users table in the database and maps each row to the User object format.
     getUserById: async (userId: number): Promise<User | null> => {
         const [rows] = await db.query<RowDataPacket[]>('SELECT * FROM users WHERE user_id = ?', [userId]);
@@ -57,6 +77,29 @@ export const UserModel = {
             };
         }
         return null; // Return null if not found
+    },
+    validateUser: async (username: string, password: string): Promise<User | null> => {
+        try {
+            const [rows] = await db.query<RowDataPacket[]>(
+                'SELECT * FROM users WHERE name = ? AND password = ?',
+                [username, password]
+            );
+
+            if (rows.length > 0) {
+                const row = rows[0];
+                return {
+                    user_id: row.user_id,
+                    name: row.name,
+                    email: row.email,
+                    password: row.password, // Potentially hash or omit this in the future for security
+                };
+            }
+
+            return null; // Return null if no user is found
+        } catch (error) {
+            console.error('Error validating user:', error);
+            throw error; // Re-throw the error to be handled by the controller
+        }
     },
     //createUser retrieves will create a user for the users table in the database
     createUser: async (name: string, email: string, password: string): Promise<number> => {

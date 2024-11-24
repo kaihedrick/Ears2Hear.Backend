@@ -17,9 +17,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteUser = exports.updateUser = exports.createUser = exports.getUserById = exports.getAllUsers = void 0;
+exports.deleteUser = exports.updateUser = exports.createUser = exports.getUserById = exports.loginUser = exports.getAllUsers = void 0;
 const userModel_1 = require("../models/userModel");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const jwtConfig_1 = require("../config/jwtConfig");
 /**
  * The getAllUsers function handles the retrieval of all users from the database.
  * It invokes the getAllUsers method from the UserModel, returning the list of users
@@ -28,14 +33,47 @@ const userModel_1 = require("../models/userModel");
 const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield userModel_1.UserModel.getAllUsers();
+        console.log('Fetched users:', users);
         res.json(users);
     }
     catch (error) {
-        console.error('Error fetching users:', error); // Log the error
-        res.status(500).json({ error: 'Error fetching users' });
+        console.error('Error fetching all users:', error);
+        res.status(500).json({ error: 'Error fetching all users' });
     }
 });
 exports.getAllUsers = getAllUsers;
+const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { username, password } = req.body;
+    if (!username || !password) {
+        res.status(400).json({ message: 'Username and password are required.' });
+        return;
+    }
+    try {
+        const user = yield userModel_1.UserModel.validateUser(username, password);
+        if (user) {
+            // Use jwtConfig.jwtSecret and jwtConfig.jwtExpiresIn
+            const token = jsonwebtoken_1.default.sign({ userId: user.user_id, username: user.name }, jwtConfig_1.jwtConfig.jwtSecret, { expiresIn: jwtConfig_1.jwtConfig.jwtExpiresIn });
+            console.log(`Generated Token for user ${user.name}:`, token);
+            res.json({
+                success: true,
+                token,
+                user: {
+                    id: user.user_id,
+                    username: user.name,
+                    email: user.email,
+                },
+            });
+        }
+        else {
+            res.status(401).json({ success: false, message: 'Invalid username or password.' });
+        }
+    }
+    catch (error) {
+        console.error('Error during login:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+exports.loginUser = loginUser;
 /**
  * The getUserById function manages the retrieval of a specific user by their ID.
  * It extracts the user ID from the request parameters, calls the getUserById method

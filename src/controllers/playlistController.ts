@@ -2,7 +2,7 @@
  * Kai Hedrick
  * CST-321
  * Instructor Sparks
- * Ears 2 playlist controller | playlists Table
+ * Ears 2 hear playlist controller | playlists Table
  * 
  * This controller facilitates the management of playlist data, enabling operations such as retrieving, creating, updating, and deleting playlists.
  * It interacts with the PlaylistModel to perform database queries and returns structured responses to the client.

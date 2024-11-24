@@ -22,4 +22,6 @@ router.post('/users', userController_1.createUser);
 router.put('/users/:id', userController_1.updateUser);
 //method for deleting a user by id in users table
 router.delete('/users/:id', userController_1.deleteUser);
+// Route for user login
+router.post('/login', userController_1.loginUser); // Add this route
 exports.default = router;

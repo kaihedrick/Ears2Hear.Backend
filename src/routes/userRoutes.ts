@@ -2,7 +2,7 @@
  * Kai Hedrick
  * CST-321
  * Instructor Sparks
- * Ears 2 User Route | user table
+ * Ears 2 Hear User Route | user table
  * 
  * This will allow the routes from our respective controller and model ts files to be linked with the routes
  */
@@ -13,7 +13,8 @@ import {
     getUserById,
     createUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    loginUser // Import the loginUser function
 } from '../controllers/userController';
 
 const router = Router();
@@ -27,5 +28,7 @@ router.post('/users', createUser);
 router.put('/users/:id', updateUser);
 //method for deleting a user by id in users table
 router.delete('/users/:id', deleteUser);
+// Route for user login
+router.post('/login', loginUser); // Add this route
 
 export default router;

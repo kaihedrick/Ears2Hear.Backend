@@ -2,7 +2,7 @@
  * Kai Hedrick
  * CST-321
  * Instructor Sparks
- * Ears 2 track controller | tracks Table
+ * Ears 2 hear track controller | tracks Table
  * 
  * This controller facilitates the management of track data, enabling operations such as retrieving, creating, updating, and deleting tracks.
  * It interacts with the TrackModel to perform database queries and returns structured responses to the client.

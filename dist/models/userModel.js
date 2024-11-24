@@ -37,14 +37,36 @@ const db = promise_1.default.createPool({
 exports.UserModel = {
     // getAllUsers retrieves all users from the users table in the database and maps each row to a User object format.
     getAllUsers: () => __awaiter(void 0, void 0, void 0, function* () {
-        const [rows] = yield db.query('SELECT * FROM users');
-        return rows.map(row => ({
-            user_id: row.user_id,
-            name: row.name,
-            email: row.email,
-            password: row.password, // Potentially format differently in future for security
-        }));
+        try {
+            const [rows] = yield db.query('SELECT * FROM users');
+            console.log('Users fetched:', rows);
+            return rows.map(row => ({
+                user_id: row.user_id,
+                name: row.name,
+                email: row.email,
+                password: row.password,
+            }));
+        }
+        catch (error) {
+            console.error('Error in getAllUsers query:', error);
+            throw error;
+        }
     }),
+    findOne(condition) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const [rows] = yield db.query('SELECT * FROM users WHERE name = ?', [condition.where.name]);
+            if (rows.length > 0) {
+                const row = rows[0];
+                return {
+                    user_id: row.user_id,
+                    name: row.name,
+                    email: row.email,
+                    password: row.password,
+                };
+            }
+            return null; // Return null if no user is found
+        });
+    },
     //getUserById retrieves a user by id from the users table in the database and maps each row to the User object format.
     getUserById: (userId) => __awaiter(void 0, void 0, void 0, function* () {
         const [rows] = yield db.query('SELECT * FROM users WHERE user_id = ?', [userId]);
@@ -58,6 +80,25 @@ exports.UserModel = {
             };
         }
         return null; // Return null if not found
+    }),
+    validateUser: (username, password) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const [rows] = yield db.query('SELECT * FROM users WHERE name = ? AND password = ?', [username, password]);
+            if (rows.length > 0) {
+                const row = rows[0];
+                return {
+                    user_id: row.user_id,
+                    name: row.name,
+                    email: row.email,
+                    password: row.password, // Potentially hash or omit this in the future for security
+                };
+            }
+            return null; // Return null if no user is found
+        }
+        catch (error) {
+            console.error('Error validating user:', error);
+            throw error; // Re-throw the error to be handled by the controller
+        }
     }),
     //createUser retrieves will create a user for the users table in the database
     createUser: (name, email, password) => __awaiter(void 0, void 0, void 0, function* () {

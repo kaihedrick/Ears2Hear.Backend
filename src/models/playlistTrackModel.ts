@@ -2,7 +2,7 @@
  * Kai Hedrick
  * CST-321
  * Instructor Sparks
- * Ears 2 playlistTrack model | playlist_tracks Table
+ * Ears 2 hear playlistTrack model | playlist_tracks Table
  * 
  * This will allow the model to retrieve playlist_tracks data from the database, perform data validation, and returned structured data to the playlist_track controller
  */
