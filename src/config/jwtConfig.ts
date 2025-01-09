@@ -1,4 +1,4 @@
 export const jwtConfig = {
-  jwtSecret: 'your_secret_key', // Replace with a strong secret key
+  jwtSecret: 'Ears2HearKey', //Ears2 Hear Secret Key
   jwtExpiresIn: '1h', // Token expiration time
 };
